@@ -1,5 +1,5 @@
 import os
-import xml.etree.cElementTree as ET
+import Template
 
 class xml_maker:
     def __init__(self, xml_data):
@@ -13,50 +13,19 @@ class xml_maker:
 
     def parse_dictionary(self):
         for file_name, defs in self.xml_dict.items():
-
             file = open("Output\\" + f"{file_name}", 'w')
+            file.write('<?xml version="1.0" encoding="utf-8"?>\n')
             file.write('<Patch>\n')
             for def_name, stat_bases in defs.items():
-                self.patch_add_weight_template(file, def_name)
+                file.write(f'\n <!-- ============== {def_name} =============== --> \n' + '\n')
+                Template.weight_template(file, def_name)
+
+                if "StuffEffectMultiplierArmor" not in stat_bases:
+                    Template.add_template(file, def_name, "StuffEffectMultiplierArmor")
+
                 for stat_base in stat_bases:
                     if stat_base == "StuffEffectMultiplierArmor" or stat_base == "ArmorRating_Sharp" or stat_base == "ArmorRating_Blunt":
-                        self.patch_replace_template(file, def_name, stat_base)
+                        Template.replace_template(file, def_name, stat_base)
 
-                file.write('\n ============================= \n' + '\n')
             file.write('</Patch>')
 
-
-    def patch_add_template(self, file, def_name, stat_base):
-        file.write(
-            '    <Operation Class="PatchOperationAdd">\n'
-            f'        <xpath>Defs/ThingDef[defName="{def_name}"]/statBases</xpath>\n'
-            '        <value>\n'
-            f'           <{stat_base}>TBD</{stat_base}>\n'
-            '        </value>\n'
-            '    </Operation> \n'
-            '\n'
-            )
-
-
-    def patch_replace_template(self, file, def_name, stat_base):
-        file.write(
-            '    <Operation Class="PatchOperationReplace">\n'
-            f'        <xpath>Defs/ThingDef[defName="{def_name}"]/statBases/{stat_base}</xpath>\n'
-            '        <value>\n'
-            f'           <{stat_base}>TBD</{stat_base}>\n'
-            '        </value>\n'
-            '    </Operation> \n'
-            '\n'
-            )
-
-    def patch_add_weight_template(self, file, def_name):
-        file.write(
-            '    <Operation Class="PatchOperationAdd">\n'
-            f'        <xpath>Defs/ThingDef[defName="{def_name}"]/statBases</xpath>\n'
-            '        <value>\n'
-            '            <Bulk>TBD</Bulk>\n'
-            '            <WornBulk>TBD</WornBulk>\n'
-            '        </value>\n'
-            '    </Operation> \n'
-            '\n'
-            )
